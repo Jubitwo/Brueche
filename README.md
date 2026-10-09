@@ -1,22 +1,17 @@
 # Brüche von Anfang an
 
-Interaktive Lernseite, die die Grundlagen und Rechenarten mit Brüchen schrittweise erklärt und üben lässt.
+Interaktive Lernseite zu Brüchen – vom Bruchbegriff bis zu Rechenarten und Prozenten.
 
 ## Lerninhalte
 
-- Brüche verstehen und Anteile berechnen
-- Erweitern, Kürzen und Vergleichen
+- Brüche verstehen, Anteile berechnen, erweitern, kürzen und vergleichen
 - Brüche addieren, subtrahieren, multiplizieren und dividieren
-- Brüche in Dezimalzahlen und Prozente umwandeln
+- Brüche mit Dezimalzahlen und Prozenten verbinden
 
 ## Schnellstart
 
-Repository herunterladen oder klonen und index.html in einem aktuellen Browser öffnen.
+Repository herunterladen oder klonen und [index.html](./index.html) in einem aktuellen Browser öffnen.
 
 ## Dokumentation
 
-- [Lernstationen, interaktive Werkzeuge und Pflege](./docs/README.md)
-
-## Änderungen prüfen
-
-Bei Änderungen Rechenwege und Ergebnisse mit mehreren Beispielen prüfen; Details stehen in der [Pflegedokumentation](./docs/README.md).
+- [Lernstationen, Werkzeuge und fachliche Prüfung](./docs/README.md)
