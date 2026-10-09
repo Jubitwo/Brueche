@@ -1,16 +1,22 @@
 # Brüche von Anfang an
 
-Interaktive Lernseite rund um Brüche. Der Einstieg der Anwendung liegt in [index.html](./index.html).
+Interaktive Lernseite, die die Grundlagen und Rechenarten mit Brüchen schrittweise erklärt und üben lässt.
+
+## Lerninhalte
+
+- Brüche verstehen und Anteile berechnen
+- Erweitern, Kürzen und Vergleichen
+- Brüche addieren, subtrahieren, multiplizieren und dividieren
+- Brüche in Dezimalzahlen und Prozente umwandeln
 
 ## Schnellstart
 
-1. Repository herunterladen oder klonen.
-2. `index.html` in einem aktuellen Browser öffnen.
+Repository herunterladen oder klonen und index.html in einem aktuellen Browser öffnen.
 
 ## Dokumentation
 
-- [Projektüberblick, Dateiaufbau, Entwicklung und Pflege](./docs/README.md)
+- [Lernstationen, interaktive Werkzeuge und Pflege](./docs/README.md)
 
-## Projektpflege
+## Änderungen prüfen
 
-Änderungen an Lerninhalten und Darstellung bitte direkt im Browser prüfen. Aufgaben und offene Punkte werden in der [Pflegedokumentation](./docs/README.md#pflege-und-offene-aufgaben) gesammelt.
+Bei Änderungen Rechenwege und Ergebnisse mit mehreren Beispielen prüfen; Details stehen in der [Pflegedokumentation](./docs/README.md).
