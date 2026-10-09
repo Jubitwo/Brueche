@@ -13,4 +13,4 @@ Interaktive Lernseite rund um Brüche. Der Einstieg der Anwendung liegt in [inde
 
 ## Projektpflege
 
-Änderungen an Lerninhalten und Darstellung bitte direkt im Browser prüfen. Aufgaben und offene Punkte werden in der [Pflegedokumentation](./docs/README.md#aufgaben-und-offene-punkte) gesammelt.
+Änderungen an Lerninhalten und Darstellung bitte direkt im Browser prüfen. Aufgaben und offene Punkte werden in der [Pflegedokumentation](./docs/README.md#pflege-und-offene-aufgaben) gesammelt.
