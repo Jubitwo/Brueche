@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brüche von Anfang an</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Kalam:wght@400;700&display=swap">
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: Heftseite auf Karopapier, eine Spalte, Kapitel als Reiter; Brüche als echte Bruch-Schreibweise mit Zähler über Nenner */
+:root{
+  --paper:#fbfbf7; --grid:#e4ebf1; --card:#ffffff; --ink:#1d2733; --muted:#5b6876;
+  --line:#cdd7e0; --blue:#1767ad; --blue-soft:#e3eef9; --pie:#f2a65a; --pie2:#8cc7a1; --sun:#f6e27e;
+  --red:#d03c25; --ok:#23804f; --ok-soft:#e2f3e8; --warn:#b26a00; --warn-soft:#fdf0d9;
+  --bad:#c0392b; --bad-soft:#fbe6e2; --pencil:#3b4a5c;
+  --f-display:"Lexend", "Trebuchet MS", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-hand:"Kalam", "Comic Sans MS", "Segoe Print", cursive;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#12181f; --grid:#1b232c; --card:#19212a; --ink:#e6ebf0; --muted:#9aa8b6;
+  --line:#2c3845; --blue:#6aaef0; --blue-soft:#18293a; --pie:#c4793a; --pie2:#3f8a5c; --sun:#6e5f1f;
+  --red:#ff7a62; --ok:#5fd193; --ok-soft:#163323; --warn:#f0b04a; --warn-soft:#33270f;
+  --bad:#ff8a7a; --bad-soft:#3a1d19; --pencil:#c3cfdb; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#12181f; --grid:#1b232c; --card:#19212a; --ink:#e6ebf0; --muted:#9aa8b6;
+  --line:#2c3845; --blue:#6aaef0; --blue-soft:#18293a; --pie:#c4793a; --pie2:#3f8a5c; --sun:#6e5f1f;
+  --red:#ff7a62; --ok:#5fd193; --ok-soft:#163323; --warn:#f0b04a; --warn-soft:#33270f;
+  --bad:#ff8a7a; --bad-soft:#3a1d19; --pencil:#c3cfdb; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background-color:var(--paper);color:var(--ink);font:17px/1.55 var(--f-body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;}
+.wrap{max-width:920px;margin:0 auto;padding-inline:16px;padding-block:0 120px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(1.6rem,4.5vw,2.3rem);color:var(--blue)}
+h2{font-size:1.45rem;color:var(--blue);margin-top:8px}
+h3{font-size:1.1rem;margin-top:28px;margin-bottom:8px}
+p{margin:.5em 0;max-width:65ch}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+header.top{padding-block:24px 10px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.overall{min-width:200px;flex:0 1 260px}
+.bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+.overall small{color:var(--muted);font-variant-numeric:tabular-nums}
+
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);
+  border-bottom:2px dashed var(--pie);margin-inline:-16px;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font:600 .92rem var(--f-display);border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:999px;padding:7px 14px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab .n{font-variant-numeric:tabular-nums;font-size:.75rem;color:var(--muted);font-family:var(--f-body)}
+.tab[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:var(--paper)}
+.tab[aria-selected="true"] .n{color:var(--paper);opacity:.85}
+.tab.done .n::after{content:" ✓"}
+.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+section.page{padding-top:22px}
+.lead{font-size:1.06rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two>*{min-width:0}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+
+.merke{border:2px dashed var(--blue);background:var(--blue-soft);border-radius:4px;padding:14px 16px;margin:18px 0;position:relative}
+.merke .tag{position:absolute;top:-12px;left:12px;background:var(--paper);color:var(--blue);font:700 .85rem var(--f-display);padding:0 6px}
+.merke p{margin:.35em 0}
+.note{font-family:var(--f-hand);color:var(--pencil);font-size:1.08rem;line-height:1.35;border-left:3px solid var(--pie);padding:4px 0 4px 12px;margin:12px 0;max-width:60ch}
+.note b{font-weight:700}
+.calc{font-variant-numeric:tabular-nums;line-height:2.1;margin:6px 0;font-size:1.08rem}
+.calc div{white-space:nowrap}
+.hl{color:var(--red);font-weight:700}
+
+/* Bruch-Schreibweise */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.08;margin:0 .12em;font-variant-numeric:tabular-nums}
+.fr>span{min-width:1.1em;text-align:center;padding:0 .18em}
+.fr>span:first-child{border-bottom:2px solid currentColor}
+.mx{display:inline-flex;align-items:center;gap:.1em;vertical-align:middle}
+.big .fr{font-size:1.15em}
+
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+.panel h3{margin-top:0}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:8px 0}
+.ctl label{display:flex;gap:8px;align-items:center;font-size:.95rem}
+.step{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:3px}
+.step button{width:34px;height:34px;border-radius:50%;border:none;background:var(--blue-soft);color:var(--blue);font:700 1.2rem var(--f-display);cursor:pointer}
+.step b{min-width:1.6em;text-align:center;font-variant-numeric:tabular-nums}
+input[type=range]{accent-color:var(--blue);width:130px}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.big{font:700 1.2rem var(--f-display);font-variant-numeric:tabular-nums}
+.svgbox{overflow-x:auto}
+.pics{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+svg text{font-family:var(--f-body)}
+.pc{fill:var(--card);stroke:var(--ink);stroke-width:1.5}
+.pc.on{fill:var(--pie)}
+.pc.on2{fill:var(--pie2)}
+.click .pc{cursor:pointer}
+.click .pc:hover{fill:var(--sun)}
+.click .pc.on:hover{fill:var(--pie)}
+
+/* Aufgaben */
+.set{margin-top:30px}
+.set-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.set-h .no{font:700 1.5rem var(--f-display);color:var(--blue)}
+.set-h h3{margin:0}
+.set-intro{color:var(--muted);margin:4px 0 10px}
+.plain{background:var(--sun);color:var(--ink);border-radius:8px;padding:8px 12px;margin:6px 0 12px;max-width:70ch}
+.plain b{font-family:var(--f-display)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.grid.wide{grid-template-columns:1fr}
+.task{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.task.ok{border-color:var(--ok)}
+.q{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.lbl{font:700 .95rem var(--f-display);color:var(--blue)}
+.prompt{font-size:1.08rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row .pre,.row .suf{font-size:1.15rem;white-space:nowrap}
+.ans{font:1.12rem var(--f-body);padding:8px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);width:6.5em;min-width:0}
+.fin{display:inline-flex;align-items:center;gap:6px}
+.fin .ans{width:3.3em;text-align:center;padding:5px 4px}
+.fin .whole{width:2.6em;height:2.6em}
+.fin .stack{display:inline-flex;flex-direction:column;align-items:center;gap:4px}
+.fin .ln{width:100%;height:2.5px;background:var(--ink);border-radius:2px}
+.fin .fixed{font:700 1.12rem var(--f-body);display:inline-block;width:3.3em;text-align:center;padding:5px 0}
+.ans.ok,.fin.ok .ans{border-color:var(--ok);background:var(--ok-soft)}
+.ans.bad,.fin.bad .ans{border-color:var(--bad)}
+.ans.almost,.fin.almost .ans{border-color:var(--warn)}
+.wlab{font-size:.72rem;color:var(--muted);text-align:center}
+.btn{font:600 .95rem var(--f-display);border-radius:8px;border:none;background:var(--blue);color:var(--paper);padding:9px 14px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}
+.fb{font-size:.97rem;line-height:1.5}
+.fb:empty{display:none}
+.fb .msg{border-radius:8px;padding:8px 10px}
+.fb .ok{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.fb .almost{background:var(--warn-soft);color:var(--ink)}
+.fb .bad{background:var(--bad-soft);color:var(--ink)}
+.fb .tip{font-family:var(--f-hand);font-size:1.08rem;color:var(--pencil);margin-top:6px;line-height:1.5}
+.fb .tip::before{content:"Tipp: ";font-weight:700;color:var(--warn)}
+.fb .sol{margin-top:6px}
+.link{background:none;border:none;color:var(--blue);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:1.05rem var(--f-body);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:8px 12px;cursor:pointer;min-width:44px}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.cmp{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:1.2rem}
+.cmp .slot{display:inline-block;min-width:2em;text-align:center;font:700 1.3rem var(--f-display);color:var(--muted);border-bottom:2px dashed var(--line)}
+
+.w{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:help;text-decoration:underline dotted var(--blue);text-decoration-thickness:2px;text-underline-offset:3px}
+.w:hover{color:var(--blue)}
+#wpop{position:absolute;z-index:20;max-width:300px;background:var(--card);border:2px solid var(--blue);border-radius:10px;padding:10px 12px;font-size:.98rem;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+#wpop .ex{display:block;margin-top:4px;color:var(--muted)}
+.words{border-collapse:collapse;width:100%;min-width:540px;font-size:.98rem}
+.words th,.words td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:middle}
+.words th{font:600 .8rem var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.next{display:flex;justify-content:flex-end;margin-top:28px}
+footer{margin-top:40px;color:var(--muted);font-size:.9rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="eyebrow">Werkrealschule · Lernen und üben im eigenen Tempo</div>
+    <h1>Brüche von Anfang an</h1>
+  </div>
+  <div class="overall" aria-label="Gesamtfortschritt">
+    <div class="bar"><i id="allbar"></i></div>
+    <small id="alltxt">0 von 0 Aufgaben gelöst</small>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" id="tabs">
+  <button class="tab" role="tab" data-tab="bruch">1 Was ist ein Bruch? <span class="n"></span></button>
+  <button class="tab" role="tab" data-tab="anteil">2 Anteile <span class="n"></span></button>
+  <button class="tab" role="tab" data-tab="kuerzen">3 Erweitern &amp; Kürzen <span class="n"></span></button>
+  <button class="tab" role="tab" data-tab="vergleich">4 Vergleichen <span class="n"></span></button>
+  <button class="tab" role="tab" data-tab="plusminus">5 Plus &amp; Minus <span class="n"></span></button>
+  <button class="tab" role="tab" data-tab="malgeteilt">6 Mal &amp; Geteilt <span class="n"></span></button>
+  <button class="tab" role="tab" data-tab="dezimal">7 Dezimalzahl &amp; Prozent <span class="n"></span></button>
+</nav>
+
+<!-- ============ 1 WAS IST EIN BRUCH ============ -->
+<section class="page" data-page="bruch">
+  <h2>Was ist ein Bruch?</h2>
+  <div class="two">
+    <div>
+      <p class="lead">Ein Ganzes wird in <b>gleich große</b> Teile geteilt. Ein Bruch sagt, wie viele Teile du davon nimmst.</p>
+      <p>Eine Pizza wird in 4 gleich große Stücke geschnitten. Du isst 3 Stücke. Du hast <span data-f="3/4"></span> der Pizza gegessen. Man sagt: <b>drei Viertel</b>.</p>
+    </div>
+    <div class="pics" id="pizza-demo"></div>
+  </div>
+
+  <div class="merke"><span class="tag">Merke</span>
+    <div class="two">
+      <div style="display:flex;gap:16px;align-items:center">
+        <span class="big" style="font-size:2.2rem"><span data-f="3/4"></span></span>
+        <div>
+          <p><b>Zähler</b> (oben): Wie viele Teile nimmst du? <i>Der Zähler zählt.</i></p>
+          <p><b>Bruchstrich</b> (Mitte)</p>
+          <p><b>Nenner</b> (unten): In wie viele Teile ist das Ganze geteilt? <i>Der Nenner nennt die Teile.</i></p>
+        </div>
+      </div>
+      <div>
+        <p>Die Teile müssen <b>gleich groß</b> sein. Sonst ist es kein richtiger Bruch.</p>
+        <p>Namen: <span data-f="1/2"></span> ein Halb, <span data-f="1/3"></span> ein Drittel, <span data-f="1/4"></span> ein Viertel, <span data-f="1/5"></span> ein Fünftel, <span data-f="1/10"></span> ein Zehntel.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Bruch-Werkstatt</h3>
+    <p>Stelle Zähler und Nenner ein und schau, was passiert.</p>
+    <div class="ctl">
+      <span>Zähler <span class="step"><button type="button" id="bw-zm" aria-label="Zähler kleiner">−</button><b id="bw-z">3</b><button type="button" id="bw-zp" aria-label="Zähler größer">+</button></span></span>
+      <span>Nenner <span class="step"><button type="button" id="bw-nm" aria-label="Nenner kleiner">−</button><b id="bw-n">4</b><button type="button" id="bw-np" aria-label="Nenner größer">+</button></span></span>
+    </div>
+    <div class="pics" id="bw-pics"></div>
+    <p id="bw-txt" class="big" aria-live="polite"></p>
+  </div>
+
+  <div class="panel">
+    <h3>Mathe-Wörter zu Brüchen</h3>
+    <div class="svgbox"><table class="words">
+      <thead><tr><th>Wort</th><th>bedeutet</th><th>Beispiel</th></tr></thead>
+      <tbody>
+        <tr><td><b>Zähler</b></td><td>die Zahl oben, zählt die genommenen Teile</td><td>bei <span data-f="3/4"></span> die 3</td></tr>
+        <tr><td><b>Nenner</b></td><td>die Zahl unten, nennt die Anzahl aller Teile</td><td>bei <span data-f="3/4"></span> die 4</td></tr>
+        <tr><td><b>Bruchstrich</b></td><td>bedeutet auch „geteilt durch“</td><td><span data-f="3/4"></span> = 3 : 4</td></tr>
+        <tr><td><b>das Ganze</b></td><td>alle Teile zusammen</td><td><span data-f="4/4"></span> = 1</td></tr>
+        <tr><td><b>Anteil</b></td><td>ein Teil von etwas</td><td><span data-f="1/4"></span> von 20 € sind 5 €</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note">Tippe auf ein <b>unterstrichenes Wort</b>, dann siehst du, was es bedeutet. Das klappt auf der ganzen Seite.</div>
+  </div>
+
+  <div id="set-bruch"></div>
+  <div class="next"><button class="btn" data-go="anteil">Weiter zu Anteilen →</button></div>
+</section>
+
+<!-- ============ 2 ANTEILE ============ -->
+<section class="page" data-page="anteil" hidden>
+  <h2>Anteile berechnen</h2>
+  <p class="lead">Wie viel ist <span data-f="3/4"></span> von 20 €? Das rechnest du in zwei Schritten.</p>
+  <div class="merke"><span class="tag">So geht's</span>
+    <div class="calc">
+      <div><b>1.</b> Teile durch den <b>Nenner</b>: 20 € : 4 = 5 €. &nbsp;Das ist <span data-f="1/4"></span>.</div>
+      <div><b>2.</b> Nimm mal den <b>Zähler</b>: 3 · 5 € = 15 €. &nbsp;Das ist <span data-f="3/4"></span>.</div>
+    </div>
+    <p>Kurz: <b>erst geteilt durch den Nenner, dann mal den Zähler.</b></p>
+  </div>
+
+  <div class="panel">
+    <h3>Anteil-Rechner</h3>
+    <div class="ctl">
+      <label for="ar-total">Menge <select id="ar-total"><option>12</option><option selected>20</option><option>24</option><option>30</option><option>60</option></select></label>
+      <label for="ar-d">Nenner <select id="ar-d"></select></label>
+      <label for="ar-z">Zähler <select id="ar-z"></select></label>
+    </div>
+    <div class="svgbox"><svg id="ar-svg" width="100%" role="img" aria-label="Punkte in Gruppen aufgeteilt"></svg></div>
+    <div id="ar-txt" class="big" aria-live="polite"></div>
+  </div>
+
+  <div class="note">Merke dir aus dem Alltag: <span data-f="1/2"></span> Stunde = 30 Minuten, <span data-f="1/4"></span> Stunde = 15 Minuten, <span data-f="1/2"></span> kg = 500 g, <span data-f="1/4"></span> Liter = 250 ml.</div>
+  <div id="set-anteil"></div>
+  <div class="next"><button class="btn" data-go="kuerzen">Weiter zu Erweitern &amp; Kürzen →</button></div>
+</section>
+
+<!-- ============ 3 ERWEITERN KÜRZEN ============ -->
+<section class="page" data-page="kuerzen" hidden>
+  <h2>Erweitern und Kürzen</h2>
+  <p class="lead">Verschiedene Brüche können <b>gleich viel</b> sein: <span data-f="1/2"></span> = <span data-f="2/4"></span> = <span data-f="4/8"></span>. Die Stücke sind kleiner, aber es sind mehr.</p>
+
+  <div class="panel">
+    <h3>Bruch-Lupe</h3>
+    <p>Schneide jedes Stück noch einmal durch. Der gefärbte Teil bleibt gleich groß.</p>
+    <div class="ctl">
+      <label for="bl-f">Bruch <select id="bl-f"><option value="1/2">1/2</option><option value="2/3" selected>2/3</option><option value="3/4">3/4</option><option value="2/5">2/5</option></select></label>
+      <label for="bl-k">Jedes Stück teilen in <input type="range" id="bl-k" min="1" max="5" value="2"><b id="bl-kv">2</b></label>
+    </div>
+    <div class="svgbox" id="bl-pics"></div>
+    <p id="bl-txt" class="big" aria-live="polite"></p>
+  </div>
+
+  <div class="merke"><span class="tag">Merke</span>
+    <div class="two">
+      <div><p><b>Erweitern</b>: Zähler <b>und</b> Nenner mit derselben Zahl <b>mal</b> nehmen.</p>
+        <div class="calc"><span data-f="2/3"></span> = <span data-f="2·4/3·4"></span> = <span data-f="8/12"></span></div></div>
+      <div><p><b>Kürzen</b>: Zähler <b>und</b> Nenner durch dieselbe Zahl <b>teilen</b>.</p>
+        <div class="calc"><span data-f="6/8"></span> = <span data-f="6:2/8:2"></span> = <span data-f="3/4"></span></div></div>
+    </div>
+    <p>Der Wert des Bruchs bleibt dabei gleich. <b>Vollständig gekürzt</b> ist ein Bruch, wenn man nicht mehr weiter kürzen kann.</p>
+  </div>
+  <div class="note"><b>Durch welche Zahl kann ich kürzen?</b> Beide Zahlen gerade → durch 2. Beide enden auf 0 oder 5 → durch 5. Quersumme durch 3 teilbar → durch 3.</div>
+
+  <div id="set-kuerzen"></div>
+  <div class="next"><button class="btn" data-go="vergleich">Weiter zum Vergleichen →</button></div>
+</section>
+
+<!-- ============ 4 VERGLEICHEN ============ -->
+<section class="page" data-page="vergleich" hidden>
+  <h2>Brüche vergleichen</h2>
+  <div class="merke"><span class="tag">Drei Fälle</span>
+    <p><b>1. Gleicher Nenner:</b> Der Bruch mit dem größeren Zähler ist größer. &nbsp;<span data-f="3/7"></span> &lt; <span data-f="5/7"></span></p>
+    <p><b>2. Gleicher Zähler:</b> Der Bruch mit dem <b>kleineren</b> Nenner ist größer. Weniger Stücke heißt größere Stücke! &nbsp;<span data-f="1/3"></span> &gt; <span data-f="1/8"></span></p>
+    <p><b>3. Alles verschieden:</b> Erweitere beide Brüche auf denselben Nenner. Dann vergleiche die Zähler. &nbsp;<span data-f="2/3"></span> = <span data-f="8/12"></span> und <span data-f="3/4"></span> = <span data-f="9/12"></span>, also <span data-f="2/3"></span> &lt; <span data-f="3/4"></span></p>
+  </div>
+  <div class="note">Zeichen: <b>&lt;</b> heißt „kleiner als“, <b>&gt;</b> heißt „größer als“. Die offene Seite zeigt immer zur größeren Zahl.</div>
+
+  <div class="panel">
+    <h3>Vergleichs-Streifen</h3>
+    <div class="ctl" id="vs-ctl"></div>
+    <div class="svgbox"><svg id="vs-svg" viewBox="0 0 420 130" width="100%" style="max-width:520px;display:block" role="img" aria-label="Zwei Bruchstreifen im Vergleich"></svg></div>
+    <p id="vs-txt" class="big" aria-live="polite"></p>
+  </div>
+
+  <div id="set-vergleich"></div>
+  <div class="next"><button class="btn" data-go="plusminus">Weiter zu Plus &amp; Minus →</button></div>
+</section>
+
+<!-- ============ 5 PLUS MINUS ============ -->
+<section class="page" data-page="plusminus" hidden>
+  <h2>Brüche addieren und subtrahieren</h2>
+  <div class="merke"><span class="tag">Gleicher Nenner</span>
+    <p>Rechne nur die <b>Zähler</b> plus oder minus. Der <b>Nenner bleibt gleich</b>.</p>
+    <div class="calc"><span data-f="1/5"></span> + <span data-f="2/5"></span> = <span data-f="1+2/5"></span> = <span data-f="3/5"></span> &nbsp;&nbsp; <span class="hl">nicht</span> <span data-f="3/10"></span>!</div>
+    <div class="pics" id="pm-demo1"></div>
+  </div>
+  <div class="note">Warum bleibt der Nenner? Fünftel plus Fünftel ergibt Fünftel. So wie 1 Apfel + 2 Äpfel = 3 Äpfel.</div>
+
+  <div class="merke"><span class="tag">Verschiedene Nenner</span>
+    <p><b>1.</b> Finde einen gemeinsamen Nenner, den <b>Hauptnenner</b>. Das ist die kleinste Zahl, in der beide Nenner aufgehen.</p>
+    <p><b>2.</b> Erweitere beide Brüche auf diesen Nenner. <b>3.</b> Rechne die Zähler plus oder minus. <b>4.</b> Kürze, wenn es geht.</p>
+    <div class="calc"><span data-f="1/2"></span> + <span data-f="1/3"></span> = <span data-f="3/6"></span> + <span data-f="2/6"></span> = <span data-f="5/6"></span></div>
+    <div class="pics" id="pm-demo2"></div>
+  </div>
+
+  <h3>Brüche größer als 1</h3>
+  <div class="two">
+    <div><p>Bei einem <b>unechten Bruch</b> ist der Zähler größer als der Nenner: <span data-f="7/4"></span>. Das ist mehr als ein Ganzes.</p>
+      <p>Man kann ihn als <b>gemischte Zahl</b> schreiben: <span data-f="7/4"></span> = <span data-f="1 3/4"></span>, denn <span data-f="4/4"></span> sind 1 Ganzes, und <span data-f="3/4"></span> bleiben übrig.</p></div>
+    <div class="pics" id="pm-demo3"></div>
+  </div>
+  <div class="note">Gemischte Zahl → Bruch: <span data-f="2 1/3"></span> = <span data-f="2·3+1/3"></span> = <span data-f="7/3"></span>. &nbsp; Bruch → gemischte Zahl: 7 : 3 = 2 Rest 1, also <span data-f="2 1/3"></span>.</div>
+  <div class="note">In den Aufgaben gibt es dafür ein kleines Feld <b>Ganze</b> links neben dem Bruch. Du darfst es leer lassen.</div>
+
+  <div id="set-plusminus"></div>
+  <div class="next"><button class="btn" data-go="malgeteilt">Weiter zu Mal &amp; Geteilt →</button></div>
+</section>
+
+<!-- ============ 6 MAL GETEILT ============ -->
+<section class="page" data-page="malgeteilt" hidden>
+  <h2>Brüche multiplizieren und dividieren</h2>
+  <div class="two">
+    <div class="merke"><span class="tag">Mal</span>
+      <p><b>Bruch mal Zahl:</b> Nur der Zähler wird mal genommen.</p>
+      <div class="calc"><span data-f="2/7"></span> · 3 = <span data-f="2·3/7"></span> = <span data-f="6/7"></span></div>
+      <p><b>Bruch mal Bruch:</b> Zähler mal Zähler, Nenner mal Nenner.</p>
+      <div class="calc"><span data-f="2/3"></span> · <span data-f="4/5"></span> = <span data-f="2·4/3·5"></span> = <span data-f="8/15"></span></div>
+      <p>„von“ heißt mal: <span data-f="1/2"></span> von <span data-f="3/4"></span> = <span data-f="1/2"></span> · <span data-f="3/4"></span> = <span data-f="3/8"></span></p>
+    </div>
+    <div class="merke"><span class="tag">Geteilt</span>
+      <p><b>Kehrwert:</b> Den Bruch umdrehen. Der Kehrwert von <span data-f="2/3"></span> ist <span data-f="3/2"></span>. Der Kehrwert von 4 ist <span data-f="1/4"></span>.</p>
+      <p><b>Durch einen Bruch teilen:</b> Mal den Kehrwert vom <b>zweiten</b> Bruch rechnen.</p>
+      <div class="calc"><span data-f="3/4"></span> : <span data-f="1/2"></span> = <span data-f="3/4"></span> · <span data-f="2/1"></span> = <span data-f="6/4"></span> = <span data-f="3/2"></span></div>
+      <p><b>Durch eine Zahl teilen:</b> Nenner mal die Zahl. <span data-f="3/4"></span> : 2 = <span data-f="3/8"></span></p>
+    </div>
+  </div>
+  <div class="note">Spar dir Arbeit: Du darfst schon <b>vor</b> dem Ausrechnen kürzen, zum Beispiel <span data-f="3/4"></span> · <span data-f="2/9"></span>: die 3 mit der 9 und die 2 mit der 4.</div>
+  <div id="set-malgeteilt"></div>
+  <div class="next"><button class="btn" data-go="dezimal">Weiter zu Dezimalzahl &amp; Prozent →</button></div>
+</section>
+
+<!-- ============ 7 DEZIMAL PROZENT ============ -->
+<section class="page" data-page="dezimal" hidden>
+  <h2>Bruch, Dezimalzahl und Prozent</h2>
+  <div class="two">
+    <div>
+      <p class="lead">Der Bruchstrich heißt „geteilt durch“. Deshalb ist <span data-f="1/2"></span> = 1 : 2 = 0,5.</p>
+      <p><b>Zehntel</b> und <b>Hundertstel</b> kannst du sofort als Dezimalzahl schreiben: <span data-f="3/10"></span> = 0,3 &nbsp; <span data-f="25/100"></span> = 0,25</p>
+      <p><b>Prozent</b> heißt „von Hundert“. 25 % = <span data-f="25/100"></span> = <span data-f="1/4"></span>.</p>
+    </div>
+    <div class="svgbox"><table class="words" style="min-width:300px">
+      <thead><tr><th>Bruch</th><th>Dezimalzahl</th><th>Prozent</th></tr></thead>
+      <tbody>
+        <tr><td><span data-f="1/2"></span></td><td>0,5</td><td>50 %</td></tr>
+        <tr><td><span data-f="1/4"></span></td><td>0,25</td><td>25 %</td></tr>
+        <tr><td><span data-f="3/4"></span></td><td>0,75</td><td>75 %</td></tr>
+        <tr><td><span data-f="1/5"></span></td><td>0,2</td><td>20 %</td></tr>
+        <tr><td><span data-f="1/10"></span></td><td>0,1</td><td>10 %</td></tr>
+        <tr><td><span data-f="1/3"></span></td><td>ungefähr 0,33</td><td>ungefähr 33 %</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="panel">
+    <h3>Hunderter-Feld</h3>
+    <p>Das ganze Feld hat 100 Kästchen. Wähle einen Bruch.</p>
+    <div class="ctl"><label for="hf-f">Bruch <select id="hf-f">
+      <option value="1/2">1/2</option><option value="1/4" selected>1/4</option><option value="3/4">3/4</option><option value="1/5">1/5</option><option value="2/5">2/5</option><option value="1/10">1/10</option><option value="7/10">7/10</option><option value="3/20">3/20</option><option value="1/25">1/25</option>
+    </select></label></div>
+    <div class="pics"><svg id="hf-svg" viewBox="0 0 222 222" width="222" style="max-width:100%" role="img" aria-label="Hunderterfeld"></svg><div id="hf-txt" class="calc big" aria-live="polite"></div></div>
+  </div>
+  <div class="note">Andere Brüche erweiterst du zuerst auf Zehntel oder Hundertstel: <span data-f="2/5"></span> = <span data-f="4/10"></span> = 0,4 = 40 %.</div>
+  <div id="set-dezimal"></div>
+</section>
+
+<footer>
+  <span>Dein Stand wird nur auf diesem Gerät gespeichert.</span>
+  <button class="link" id="reset">Alle Antworten zurücksetzen</button>
+  <span id="reset-confirm" hidden>Wirklich alles löschen? <button class="link" id="reset-yes">Ja, löschen</button> · <button class="link" id="reset-no">Abbrechen</button></span>
+</footer>
+</div>
+
+<script id="core">
+/* ---------- Bruch-Rechnen ---------- */
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const red=([n,d])=>{const g=gcd(n,d);return [n/g,d/g];};
+const F=x=>Array.isArray(x)?x:[x,1];
+const eqv=(a,b)=>a[0]*b[1]===b[0]*a[1];
+
+/* Schreibweise: {3/4}, {1 3/4}, {2·4/3·4} */
+function fr(n,d){ return `<span class="fr"><span>${n}</span><span>${d}</span></span>`; }
+function mx(w,n,d){ return `<span class="mx">${w}${fr(n,d)}</span>`; }
+function fstr(s){
+  const m=String(s).match(/^(\d+)\s+(.+)\/(.+)$/); if(m) return mx(m[1],m[2],m[3]);
+  const k=String(s).split('/'); return k.length===2?fr(k[0],k[1]):String(s);
+}
+function rm(s){ return String(s).replace(/\{([^{}]+)\}/g,(_,x)=>fstr(x)); }
+const fH=a=>{a=F(a); return a[1]===1?String(a[0]):fr(a[0],a[1]);};
+function niceH(a){ a=red(F(a)); if(a[1]===1) return String(a[0]); if(a[0]>a[1]) return fr(a[0],a[1])+' = '+mx(Math.floor(a[0]/a[1]),a[0]%a[1],a[1]); return fr(a[0],a[1]); }
+const decFmt=x=>String(Math.round(x*10000)/10000).replace('.',',');
+
+/* ---------- Aufgaben ---------- */
+const SETS={
+bruch:[
+ {no:'W', title:'Mathe-Wörter', cards:[
+  {id:'b-w1', lbl:'a)', k:'mc', prompt:'Wie heißt die Zahl <b>unter</b> dem Bruchstrich?', okMsg:'Richtig! Der Nenner nennt, in wie viele Teile das Ganze geteilt ist.',
+   opts:[['Zähler','Der Zähler steht oben. Merkhilfe: Der Zähler zählt, der Nenner nennt.'],['Nenner',null],['Bruchstrich','Der Bruchstrich ist der Strich in der Mitte.']], ans:1},
+  {id:'b-w2', lbl:'b)', k:'mc', prompt:'Bei {3/8}: Was sagt dir die 3?', okMsg:'Richtig! Der Zähler zählt die genommenen Teile.',
+   opts:[['Das Ganze ist in 3 Teile geteilt.','In wie viele Teile geteilt wird, sagt der Nenner (unten).'],['Ich nehme 3 Teile.',null],['Es gibt 3 Ganze.','Die 3 steht oben. Sie zählt die Teile.']], ans:1},
+  {id:'b-w3', lbl:'c)', k:'num', prompt:'Bei {2/5}: In wie viele gleich große Teile ist das Ganze geteilt?', ans:5, pre:'', wrongs:[[2,'Die 2 ist der Zähler. Die Anzahl aller Teile steht unten.']], hints:['Schau auf den Nenner, die Zahl unten.']},
+ ]},
+ {no:'Ü1', title:'Welcher Bruch ist gefärbt?', plain:'Zähle zuerst <b>alle</b> Teile. Das ist der Nenner (unten). Zähle dann die <b>gefärbten</b> Teile. Das ist der Zähler (oben).', cards:[
+  {lbl:'a)', k:'pick', shape:'pie', p:[1,4]},
+  {lbl:'b)', k:'pick', shape:'bar', p:[3,5]},
+  {lbl:'c)', k:'pick', shape:'pie', p:[5,8]},
+  {lbl:'d)', k:'pick', shape:'bar', p:[2,6]},
+  {lbl:'e)', k:'pick', shape:'pie', p:[2,3]},
+  {lbl:'f)', k:'pick', shape:'bar', p:[7,10]},
+ ]},
+ {no:'Ü2', title:'Färbe den Bruch.', plain:'Tippe auf die Stücke, um sie zu färben. Noch einmal tippen nimmt die Farbe wieder weg.', cards:[
+  {lbl:'a)', k:'color', shape:'pie', m:4, t:[3,4]},
+  {lbl:'b)', k:'color', shape:'bar', m:3, t:[2,3]},
+  {lbl:'c)', k:'color', shape:'bar', m:8, t:[1,2]},
+  {lbl:'d)', k:'color', shape:'pie', m:6, t:[1,3]},
+  {lbl:'e)', k:'color', shape:'bar', m:8, t:[3,4]},
+  {lbl:'f)', k:'color', shape:'bar', m:10, t:[2,5]},
+ ]},
+],
+anteil:[
+ {no:'Ü1', title:'Berechne den Anteil.', plain:'Erst durch den <b>Nenner</b> teilen, dann mal den <b>Zähler</b> nehmen.', cards:[
+  {lbl:'a)', k:'part', a:[1,2], of:18, unit:''},
+  {lbl:'b)', k:'part', a:[1,3], of:12, unit:''},
+  {lbl:'c)', k:'part', a:[1,4], of:20, unit:'€'},
+  {lbl:'d)', k:'part', a:[3,4], of:20, unit:'€'},
+  {lbl:'e)', k:'part', a:[2,5], of:30, unit:''},
+  {lbl:'f)', k:'part', a:[5,6], of:42, unit:'€'},
+ ]},
+ {no:'Ü2', title:'Anteile im Alltag', cards:[
+  {lbl:'a)', k:'num', prompt:'{3/4} Stunde sind wie viele Minuten?', ans:45, suf:'Minuten', wrongs:[[15,'Das ist erst {1/4} Stunde. Du brauchst 3 solche Teile.'],[75,'Rechne erst 60 : 4, dann mal 3.']], hints:['Eine Stunde hat 60 Minuten. 60 : 4 = 15. Dann mal 3.']},
+  {lbl:'b)', k:'num', prompt:'{1/2} kg sind wie viele Gramm?', ans:500, suf:'g', wrongs:[[50,'1 kg = 1000 g, nicht 100 g.']], hints:['1 kg = 1000 g. Die Hälfte davon?']},
+  {lbl:'c)', k:'num', prompt:'Die Klasse 8b hat 24 Schüler. {1/3} davon kommt mit dem Bus. Wie viele Schüler sind das?', ans:8, suf:'Schüler', wrongs:[[72,'Nicht mal 3, sondern geteilt durch 3.']], hints:['Teile 24 durch den Nenner 3.']},
+  {lbl:'d)', k:'num', prompt:'Ein Handy kostet 300 €. Im Angebot gibt es {1/5} Rabatt. Wie viele Euro sparst du?', ans:60, suf:'€', wrongs:[[240,'Das ist der neue Preis. Gefragt ist, wie viel du sparst.'],[1500,'Teile durch 5, nimm nicht mal 5.']], hints:['Rechne 300 : 5.']},
+  {lbl:'e)', k:'num', prompt:'Lena hat 40 € gespart. Sie gibt {3/8} davon für ein Spiel aus. Wie viel kostet das Spiel?', ans:15, suf:'€', wrongs:[[5,'Das ist erst {1/8}. Nimm mal 3.']], hints:['40 : 8 = 5. Dann mal 3.']},
+ ]},
+],
+kuerzen:[
+ {no:'Ü1', title:'Erweitere mit der angegebenen Zahl.', plain:'Nimm Zähler <b>und</b> Nenner mal dieselbe Zahl.', cards:[
+  {lbl:'a)', k:'frac', op:'ext', a:[2,3], f:4},
+  {lbl:'b)', k:'frac', op:'ext', a:[3,5], f:2},
+  {lbl:'c)', k:'frac', op:'ext', a:[1,4], f:3},
+  {lbl:'d)', k:'frac', op:'ext', a:[5,6], f:5},
+ ]},
+ {no:'Ü2', title:'Ergänze die fehlende Zahl.', plain:'Finde heraus, mit welcher Zahl malgenommen (oder durch welche Zahl geteilt) wurde. Mach dasselbe mit der anderen Zahl.', cards:[
+  {lbl:'a)', k:'fill', a:[3,4], given:'d', val:12},
+  {lbl:'b)', k:'fill', a:[2,5], given:'d', val:20},
+  {lbl:'c)', k:'fill', a:[1,3], given:'n', val:4},
+  {lbl:'d)', k:'fill', a:[6,8], given:'d', val:4},
+  {lbl:'e)', k:'fill', a:[10,15], given:'n', val:2},
+  {lbl:'f)', k:'fill', a:[3,7], given:'n', val:12},
+ ]},
+ {no:'Ü3', title:'Kürze vollständig.', plain:'Teile Zähler <b>und</b> Nenner durch dieselbe Zahl, bis es nicht mehr geht.', cards:[
+  {lbl:'a)', k:'frac', op:'red', a:[4,8]},
+  {lbl:'b)', k:'frac', op:'red', a:[6,9]},
+  {lbl:'c)', k:'frac', op:'red', a:[10,15]},
+  {lbl:'d)', k:'frac', op:'red', a:[12,16]},
+  {lbl:'e)', k:'frac', op:'red', a:[18,24]},
+  {lbl:'f)', k:'frac', op:'red', a:[14,21]},
+ ]},
+],
+vergleich:[
+ {no:'Ü1', title:'Setze das richtige Zeichen ein: <, = oder >', plain:'Gleicher Nenner? Vergleiche die Zähler. Gleicher Zähler? Kleinerer Nenner ist größer. Sonst: auf gleichen Nenner erweitern.', cards:[
+  {lbl:'a)', k:'cmp', a:[3,7], b:[5,7]},
+  {lbl:'b)', k:'cmp', a:[2,3], b:[2,5]},
+  {lbl:'c)', k:'cmp', a:[1,2], b:[4,8]},
+  {lbl:'d)', k:'cmp', a:[1,6], b:[1,4]},
+  {lbl:'e)', k:'cmp', a:[3,4], b:[2,3]},
+  {lbl:'f)', k:'cmp', a:[5,6], b:[7,8]},
+  {lbl:'g)', k:'cmp', a:[3,5], b:[6,10]},
+  {lbl:'h)', k:'cmp', a:[4,9], b:[1,2]},
+ ]},
+ {no:'Ü2', title:'Wer hat mehr?', cards:[
+  {id:'v-t1', lbl:'a)', k:'mc', prompt:'Tom isst {3/8} einer Pizza, Mia isst {1/2} einer gleich großen Pizza. Wer isst mehr?', okMsg:'Richtig! {1/2} = {4/8}, und {4/8} ist mehr als {3/8}.',
+   opts:[['Tom','Erweitere {1/2} auf Achtel: {1/2} = {4/8}.'],['Mia',null],['beide gleich viel','Erweitere {1/2} auf Achtel und vergleiche dann.']], ans:1},
+  {id:'v-t2', lbl:'b)', k:'mc', prompt:'Welcher Bruch ist am größten?', okMsg:'Richtig! Bei gleichem Zähler ist der kleinste Nenner am größten.',
+   opts:[['{1/3}',null],['{1/5}','Ein Fünftel ist kleiner als ein Drittel: Das Ganze ist in mehr Stücke geteilt.'],['{1/10}','Zehntel sind sehr kleine Stücke.']], ans:0},
+ ]},
+],
+plusminus:[
+ {no:'Ü1', title:'Gleicher Nenner. Kürze, wenn es geht.', plain:'Rechne nur die Zähler zusammen. Der Nenner bleibt gleich.', cards:[
+  {lbl:'a)', k:'frac', op:'add', a:[1,5], b:[2,5]},
+  {lbl:'b)', k:'frac', op:'add', a:[3,8], b:[4,8]},
+  {lbl:'c)', k:'frac', op:'sub', a:[5,9], b:[2,9]},
+  {lbl:'d)', k:'frac', op:'sub', a:[7,10], b:[3,10]},
+  {lbl:'e)', k:'frac', op:'add', a:[3,4], b:[3,4]},
+  {lbl:'f)', k:'frac', op:'sub', a:[11,12], b:[5,12]},
+ ]},
+ {no:'Ü2', title:'Verschiedene Nenner. Kürze, wenn es geht.', plain:'Mache zuerst die Nenner gleich (erweitern). Dann rechne die Zähler zusammen.', cards:[
+  {lbl:'a)', k:'frac', op:'add', a:[1,2], b:[1,4]},
+  {lbl:'b)', k:'frac', op:'add', a:[1,3], b:[1,6]},
+  {lbl:'c)', k:'frac', op:'add', a:[1,2], b:[1,3]},
+  {lbl:'d)', k:'frac', op:'sub', a:[2,3], b:[1,4]},
+  {lbl:'e)', k:'frac', op:'sub', a:[3,4], b:[1,6]},
+  {lbl:'f)', k:'frac', op:'add', a:[2,5], b:[1,2]},
+  {lbl:'g)', k:'frac', op:'add', a:[5,6], b:[3,4]},
+ ]},
+ {no:'Ü3', title:'Unechte Brüche und gemischte Zahlen', cards:[
+  {lbl:'a)', k:'frac', op:'tomixed', a:[7,4]},
+  {lbl:'b)', k:'frac', op:'tomixed', a:[11,3]},
+  {lbl:'c)', k:'frac', op:'toimp', w:2, a:[1,2]},
+  {lbl:'d)', k:'frac', op:'toimp', w:1, a:[3,5]},
+ ]},
+],
+malgeteilt:[
+ {no:'Ü1', title:'Bruch mal Zahl. Kürze, wenn es geht.', plain:'Nur der Zähler wird mal die Zahl genommen. Der Nenner bleibt.', cards:[
+  {lbl:'a)', k:'frac', op:'mul', a:[2,7], b:3},
+  {lbl:'b)', k:'frac', op:'mul', a:[1,5], b:4},
+  {lbl:'c)', k:'frac', op:'mul', a:[3,8], b:2},
+  {lbl:'d)', k:'frac', op:'mul', a:[2,9], b:5},
+ ]},
+ {no:'Ü2', title:'Bruch mal Bruch. Kürze, wenn es geht.', plain:'Zähler mal Zähler, Nenner mal Nenner.', cards:[
+  {lbl:'a)', k:'frac', op:'mul', a:[1,2], b:[1,3]},
+  {lbl:'b)', k:'frac', op:'mul', a:[2,3], b:[4,5]},
+  {lbl:'c)', k:'frac', op:'mul', a:[3,4], b:[2,5]},
+  {lbl:'d)', k:'frac', op:'mul', a:[5,6], b:[3,10]},
+  {lbl:'e)', k:'frac', op:'mul', a:[1,2], b:[3,4], of:true},
+ ]},
+ {no:'Ü3', title:'Bilde den Kehrwert.', plain:'Drehe den Bruch um: Der Zähler kommt nach unten, der Nenner nach oben.', cards:[
+  {lbl:'a)', k:'frac', op:'rec', a:[2,3]},
+  {lbl:'b)', k:'frac', op:'rec', a:[5,8]},
+  {lbl:'c)', k:'frac', op:'rec', a:[4,1]},
+ ]},
+ {no:'Ü4', title:'Teile. Kürze, wenn es geht.', plain:'Durch einen Bruch teilen heißt: mal den Kehrwert vom zweiten Bruch.', cards:[
+  {lbl:'a)', k:'frac', op:'div', a:[3,4], b:3},
+  {lbl:'b)', k:'frac', op:'div', a:[2,5], b:[1,2]},
+  {lbl:'c)', k:'frac', op:'div', a:[3,4], b:[1,2]},
+  {lbl:'d)', k:'frac', op:'div', a:[5,6], b:[5,12]},
+ ]},
+],
+dezimal:[
+ {no:'Ü1', title:'Schreibe als Dezimalzahl.', plain:'Zehntel: eine Stelle nach dem Komma. Hundertstel: zwei Stellen nach dem Komma. Andere Brüche erst erweitern.', cards:[
+  {lbl:'a)', k:'num', prompt:'{7/10}', ans:0.7, wrongs:[[7,'Zehntel stehen nach dem Komma: 0,7.'],[0.07,'Zehntel brauchen nur eine Stelle nach dem Komma.']], hints:['{7/10} sind 7 Zehntel. Schreibe 0, und dann die 7.']},
+  {lbl:'b)', k:'num', prompt:'{3/100}', ans:0.03, wrongs:[[0.3,'0,3 sind 3 Zehntel. Hundertstel brauchen zwei Stellen: 0,03.']], hints:['Hundertstel: zwei Stellen nach dem Komma.']},
+  {lbl:'c)', k:'num', prompt:'{1/2}', ans:0.5, wrongs:[[1.2,'Der Bruchstrich ist kein Komma. {1/2} = 1 : 2.'],[0.2,'Erweitere {1/2} auf Zehntel: {5/10}.']], hints:['Erweitere auf Zehntel: {1/2} = {5/10}.']},
+  {lbl:'d)', k:'num', prompt:'{3/4}', ans:0.75, wrongs:[[3.4,'Der Bruchstrich ist kein Komma. Erweitere auf Hundertstel.'],[0.34,'Der Bruchstrich ist kein Komma. Erweitere auf Hundertstel.']], hints:['Erweitere auf Hundertstel: {3/4} = {75/100}.']},
+  {lbl:'e)', k:'num', prompt:'{2/5}', ans:0.4, wrongs:[[2.5,'Der Bruchstrich ist kein Komma. Erweitere auf Zehntel.'],[0.25,'Der Bruchstrich ist kein Komma. Erweitere auf Zehntel.']], hints:['Erweitere auf Zehntel: {2/5} = {4/10}.']},
+ ]},
+ {no:'Ü2', title:'Wie viel Prozent sind das?', plain:'Prozent heißt Hundertstel. Erweitere den Bruch auf Hundertstel.', cards:[
+  {lbl:'a)', k:'num', prompt:'{1/4}', ans:25, suf:'%', wrongs:[[4,'Erweitere auf Hundertstel: {1/4} = {25/100}.'],[0.25,'0,25 ist die Dezimalzahl. In Prozent: 25 %.']], hints:['{1/4} = {25/100}.']},
+  {lbl:'b)', k:'num', prompt:'{3/10}', ans:30, suf:'%', wrongs:[[3,'Erweitere auf Hundertstel: {3/10} = {30/100}.']], hints:['Erweitere mit 10: {3/10} = {30/100}.']},
+  {lbl:'c)', k:'num', prompt:'{1/5}', ans:20, suf:'%', wrongs:[[5,'Erweitere auf Hundertstel. 100 : 5 = 20.']], hints:['Erweitere mit 20: {1/5} = {20/100}.']},
+  {lbl:'d)', k:'num', prompt:'Im Schlussverkauf kostet alles nur noch die Hälfte. Wie viel Prozent Rabatt sind das?', ans:50, suf:'%', hints:['Die Hälfte = {1/2} = {50/100}.']},
+ ]},
+ {no:'Ü3', title:'Schreibe als Bruch und kürze vollständig.', cards:[
+  {lbl:'a)', k:'frac', op:'given', pre:'0,6 =', ans:[3,5], hints:['0,6 sind 6 Zehntel: {6/10}. Kürze dann.']},
+  {lbl:'b)', k:'frac', op:'given', pre:'0,25 =', ans:[1,4], hints:['0,25 sind 25 Hundertstel: {25/100}. Kürze dann.']},
+  {lbl:'c)', k:'frac', op:'given', pre:'75 % =', ans:[3,4], hints:['75 % = {75/100}. Kürze durch 25.']},
+ ]},
+],
+};
+
+/* ---------- Aufgaben aufbereiten ---------- */
+const opSym={add:'+',sub:'−',mul:'·',div:':'};
+function prepare(c,setKey,idx){
+  c.id=c.id||(setKey+'-'+idx);
+  if(c.k==='pick'){
+    const [k,n]=c.p; c.ans=[k,n]; c.req='any';
+    c.wrongs=[[[n,k],'Zähler und Nenner sind vertauscht. Oben stehen die gefärbten Teile, unten alle Teile.']];
+    if(n-k!==k && n-k>0) c.wrongs.push([[k,n-k],'Unten steht die Anzahl <b>aller</b> Teile, nicht nur der weißen.'],[[n-k,n],'Du hast die weißen Teile gezählt. Oben stehen die <b>gefärbten</b> Teile.']);
+    c.hints=['Zähle alle Teile: Das ist der Nenner. Zähle die gefärbten Teile: Das ist der Zähler.'];
+    c.pre='';
+  }
+  if(c.k==='part'){
+    const [z,n]=c.a, one=c.of/n;
+    c.k='num'; c.prompt=`{${z}/${n}} von ${c.of}${c.unit?' '+c.unit:''}`; c.ans=z*one; c.suf=c.unit;
+    c.wrongs=[]; if(z>1) c.wrongs.push([one,`Das ist erst {1/${n}}. Du brauchst ${z} solche Teile: ${z} · ${one}.`]);
+    if(c.of*n/z!==c.ans) c.wrongs.push([c.of*n/z,`Umgekehrt! Erst <b>geteilt</b> durch den Nenner ${n}, dann <b>mal</b> den Zähler ${z}.`]);
+    if(c.of*z!==c.ans) c.wrongs.push([c.of*z,`Du musst auch noch durch den Nenner ${n} teilen.`]);
+    c.hints=[`Erst ${c.of} : ${n} = ?`+(z>1?`, dann mal ${z}.`:''), `${c.of} : ${n} = ${one}`+(z>1?`. Jetzt noch ${one} · ${z}.`:'.')];
+  }
+  if(c.k==='frac') prepFrac(c);
+  if(c.k==='fill'){
+    const [a,b]=c.a;
+    if(c.given==='d'){ c.target='n'; c.ans=a*c.val/b; const f=c.val/b;
+      c.hints=[f>=1?`Womit wurde der Nenner malgenommen? ${b} · ${f} = ${c.val}. Nimm den Zähler auch mal ${f}.`:`Durch welche Zahl wurde der Nenner geteilt? ${b} : ${b/c.val} = ${c.val}. Teile den Zähler auch durch ${b/c.val}.`];
+      c.wrongs=[[a+(c.val-b),'Beim Erweitern und Kürzen wird mal oder geteilt gerechnet, nicht plus oder minus.']];
+    } else { c.target='d'; c.ans=b*c.val/a; const f=c.val/a;
+      c.hints=[f>=1?`Womit wurde der Zähler malgenommen? ${a} · ${f} = ${c.val}. Nimm den Nenner auch mal ${f}.`:`Durch welche Zahl wurde der Zähler geteilt? ${a} : ${a/c.val} = ${c.val}. Teile den Nenner auch durch ${a/c.val}.`];
+      c.wrongs=[[b+(c.val-a),'Beim Erweitern und Kürzen wird mal oder geteilt gerechnet, nicht plus oder minus.']];
+    }
+  }
+  if(c.k==='cmp'){
+    const [a,b]=[c.a,c.b]; const v=a[0]*b[1]-b[0]*a[1]; c.ans=v<0?'<':v>0?'>':'=';
+    const L=lcm(a[1],b[1]);
+    if(a[1]===b[1]) c.hints=['Gleicher Nenner: Vergleiche nur die Zähler.'];
+    else if(a[0]===b[0]) c.hints=['Gleicher Zähler: Je größer der Nenner, desto <b>kleiner</b> die Stücke.'];
+    else c.hints=[`Erweitere beide auf den Nenner ${L}: {${a[0]}/${a[1]}} = {${a[0]*L/a[1]}/${L}} und {${b[0]}/${b[1]}} = {${b[0]*L/b[1]}/${L}}.`];
+    if(c.ans==='=') c.hints.push('Kürze oder erweitere einen der Brüche. Vielleicht sind beide gleich viel.');
+  }
+  if(c.k==='color'){ c.need=c.m*c.t[0]/c.t[1]; }
+  return c;
+}
+function prepFrac(c){
+  const A=F(c.a), B=c.b!=null?F(c.b):null;
+  c.req='reduced'; c.wrongs=[]; c.hints=c.hints||[];
+  const bH=c.b!=null?(Array.isArray(c.b)?`{${B[0]}/${B[1]}}`:String(c.b)):'';
+  const aH=`{${A[0]}/${A[1]}}`;
+  switch(c.op){
+    case 'add': case 'sub': {
+      const s=c.op==='add'?1:-1, L=lcm(A[1],B[1]);
+      c.ans=red([A[0]*L/A[1]+s*B[0]*L/B[1],L]);
+      c.pre=`${aH} ${opSym[c.op]} ${bH} =`;
+      c.wrongs.push([[A[0]+s*B[0],A[1]+s*B[1]], c.op==='add'?'Die Nenner werden <b>nicht</b> addiert! Der Nenner sagt nur, wie groß die Stücke sind.':'Die Nenner werden <b>nicht</b> abgezogen! Der Nenner sagt nur, wie groß die Stücke sind.']);
+      if(A[1]!==B[1]){
+        c.wrongs.push([[A[0]+s*B[0],L],'Du hast den Nenner gleich gemacht, aber die Zähler nicht mit erweitert.']);
+        if(A[1]*B[1]!==L) c.wrongs.push([[A[0]+s*B[0],A[1]*B[1]],'Du hast den Nenner gleich gemacht, aber die Zähler nicht mit erweitert.']);
+        c.hints=[`Mache die Nenner gleich. Der Hauptnenner ist ${L}.`, `{${A[0]}/${A[1]}} = {${A[0]*L/A[1]}/${L}} und {${B[0]}/${B[1]}} = {${B[0]*L/B[1]}/${L}}. Jetzt die Zähler ${c.op==='add'?'plus':'minus'} rechnen.`];
+      } else c.hints=[`Gleicher Nenner: Rechne ${A[0]} ${opSym[c.op]} ${B[0]}. Der Nenner ${A[1]} bleibt.`];
+      break; }
+    case 'mul': {
+      c.ans=red([A[0]*B[0],A[1]*B[1]]);
+      c.pre=c.of?`${aH} von ${bH} =`:`${aH} · ${bH} =`;
+      if(B[1]===1){
+        c.wrongs.push([[A[0]*B[0],A[1]*B[0]],'Nur der <b>Zähler</b> wird mal genommen. Wenn du auch den Nenner malnimmst, hast du nur erweitert.']);
+        c.wrongs.push([[A[0],A[1]*B[0]],'Bei mal wird der Zähler malgenommen, nicht der Nenner.']);
+        c.hints=[`Rechne ${A[0]} · ${B[0]}. Der Nenner ${A[1]} bleibt.`];
+      } else {
+        c.wrongs.push([[A[0]*B[0],A[1]],'Der Nenner wird auch malgenommen: Nenner mal Nenner.']);
+        c.wrongs.push([[A[0]+B[0],A[1]+B[1]],'Beim Malnehmen wird nicht addiert. Zähler <b>mal</b> Zähler, Nenner <b>mal</b> Nenner.']);
+        c.hints=[`Zähler mal Zähler: ${A[0]} · ${B[0]}. Nenner mal Nenner: ${A[1]} · ${B[1]}.`];
+      }
+      break; }
+    case 'div': {
+      c.ans=red([A[0]*B[1],A[1]*B[0]]);
+      c.pre=`${aH} : ${bH} =`;
+      if(B[1]===1){
+        c.wrongs.push([[A[0]*B[0],A[1]],'Das wäre mal. Beim Teilen durch eine Zahl wird der <b>Nenner</b> malgenommen.']);
+        c.hints=[`Nenner mal ${B[0]}: {${A[0]}/${A[1]}·${B[0]}}.`, `Oder: Kehrwert von ${B[0]} ist {1/${B[0]}}. Rechne {${A[0]}/${A[1]}} · {1/${B[0]}}.`];
+      } else {
+        c.wrongs.push([[A[0]*B[0],A[1]*B[1]],'Du hast mal gerechnet. Beim Teilen musst du zuerst den zweiten Bruch umdrehen (Kehrwert).']);
+        c.wrongs.push([[A[1]*B[0],A[0]*B[1]],'Du hast den Kehrwert vom <b>ersten</b> Bruch genommen. Drehe den <b>zweiten</b> Bruch um.']);
+        c.hints=[`Drehe den zweiten Bruch um und rechne mal: {${A[0]}/${A[1]}} · {${B[1]}/${B[0]}}.`];
+      }
+      break; }
+    case 'ext': {
+      c.ans=[A[0]*c.f,A[1]*c.f]; c.req='den'; c.den=A[1]*c.f;
+      c.pre=`${aH} erweitert mit ${c.f} =`;
+      c.wrongs.push([[A[0]*c.f,A[1]],'Den Nenner musst du auch mal nehmen.'],[[A[0],A[1]*c.f],'Den Zähler musst du auch mal nehmen.']);
+      c.wrongsRaw=[[[A[0]+c.f,A[1]+c.f],'Erweitern heißt <b>mal</b> nehmen, nicht plus.']];
+      c.hints=[`Rechne ${A[0]} · ${c.f} und ${A[1]} · ${c.f}.`];
+      break; }
+    case 'red': {
+      c.ans=red(A); const g=gcd(A[0],A[1]);
+      c.pre=`${aH} =`;
+      c.hints=[`Suche eine Zahl, durch die ${A[0]} und ${A[1]} beide teilbar sind.`, `Du kannst beide durch ${g} teilen.`];
+      break; }
+    case 'tomixed': {
+      c.ans=A; c.req='mixed'; c.pre=`${aH} =`;
+      c.hints=[`Wie oft passt ${A[1]} in ${A[0]}? Das sind die Ganzen. Der Rest kommt in den Zähler.`, `${A[0]} : ${A[1]} = ${Math.floor(A[0]/A[1])} Rest ${A[0]%A[1]}.`];
+      break; }
+    case 'toimp': {
+      const N=c.w*A[1]+A[0]; c.ans=[N,A[1]]; c.req='improper'; c.pre=`{${c.w} ${A[0]}/${A[1]}} =`;
+      c.wrongsRaw=[[[c.w*A[0]+A[1],A[1]],'Rechne: Ganze mal Nenner, dann plus Zähler.'],[[c.w+A[0],A[1]],'Ein Ganzes sind {'+A[1]+'/'+A[1]+'}. Rechne Ganze mal Nenner, dann plus Zähler.']];
+      c.hints=[`Ein Ganzes sind {${A[1]}/${A[1]}}. ${c.w} Ganze sind {${c.w*A[1]}/${A[1]}}. Plus {${A[0]}/${A[1]}}.`];
+      break; }
+    case 'rec': {
+      c.ans=[A[1],A[0]]; c.req='exact'; c.pre=`Kehrwert von ${fH(A)}:`;
+      c.hints=[A[1]===1?`${A[0]} ist {${A[0]}/1}. Drehe den Bruch um.`:'Zähler und Nenner tauschen den Platz.'];
+      break; }
+    case 'given': c.req='reduced'; break;
+  }
+  c.mixed = c.req==='mixed' || (c.req!=='improper' && c.req!=='exact' && c.req!=='den' && c.ans[0]>=c.ans[1] && c.op!=='red');
+  c.wrongs=c.wrongs.filter(([w])=>!eqv(w,c.ans));
+}
+
+/* ---------- Prüfen ---------- */
+// v: {w,hasW,n,d,hasF}
+function readVal(v){
+  return [v.w*v.d+v.n, v.d];
+}
+function checkFrac(c,v){
+  if(v.err) return {s:'invalid',m:v.err};
+  const val=readVal(v);
+  if(eqv(val,c.ans)){
+    switch(c.req){
+      case 'den': if(v.hasW||v.d!==c.den||v.n!==c.ans[0]) return {s:'almost',m:`Der Wert stimmt, aber der Nenner soll ${c.den} sein. Erweitere genau mit ${c.f}.`}; return {s:'ok'};
+      case 'exact': if(v.hasW||v.n!==c.ans[0]||v.d!==c.ans[1]) return {s:'almost',m:`Der Wert stimmt, aber Kehrwert heißt nur umdrehen: Zähler nach unten, Nenner nach oben.`}; return {s:'ok'};
+      case 'mixed': if(!v.hasW||!v.hasF||v.n>=v.d) return {s:'almost',m:'Der Wert stimmt. Schreibe ihn als gemischte Zahl: Ganze ins kleine Feld, der Rest als Bruch.'}; if(gcd(v.n,v.d)>1) return {s:'almost',m:'Fast! Kürze noch den Bruch.'}; return {s:'ok'};
+      case 'improper': if(v.hasW) return {s:'almost',m:'Der Wert stimmt, aber schreibe ihn als <b>einen</b> Bruch ohne Ganze.'}; return {s:'ok'};
+      case 'reduced': if(v.hasF && v.n>0 && gcd(v.n,v.d)>1){ const g=gcd(v.n,v.d); return {s:'almost',m:(c.op==='red'?'Gut, aber es geht noch weiter: ':'Richtig gerechnet! Jetzt noch kürzen: ')+`${v.n} und ${v.d} kann man durch ${g} teilen.`}; } return {s:'ok'};
+      default: return {s:'ok'};
+    }
+  }
+  for(const [w,h] of (c.wrongs||[])) if(eqv(val,w)) return {s:'bad',m:h,specific:true};
+  for(const [w,h] of (c.wrongsRaw||[])) if(eqv(val,w)) return {s:'bad',m:h,specific:true};
+  if(c.op==='add'||c.op==='sub'||c.op==='mul'||c.op==='div'){
+    if(c.op!=='mul' && c.op!=='div' && v.d!==1 && c.b && F(c.a)[1]!==F(c.b)[1] && v.d % F(c.a)[1]===0 && v.d % F(c.b)[1]===0) return {s:'bad',m:'Der Nenner passt. Prüfe beim Erweitern die Zähler noch einmal.',specific:false};
+  }
+  return {s:'bad',m:null};
+}
+function checkNum(c,input){
+  const t=String(input).trim().replace(/\s/g,'').replace(',','.');
+  if(!t) return {s:'invalid',m:'Gib zuerst eine Antwort ein.'};
+  if(!/^-?\d+(\.\d+)?$/.test(t)) return {s:'invalid',m:'Gib eine Zahl ein. Für das Komma kannst du , schreiben.'};
+  const v=parseFloat(t);
+  if(Math.abs(v-c.ans)<1e-9) return {s:'ok'};
+  for(const [w,h] of (c.wrongs||[])) if(Math.abs(v-w)<1e-9) return {s:'bad',m:h,specific:true};
+  return {s:'bad',m:null};
+}
+function checkFill(c,input){
+  const t=String(input).trim(); if(!t) return {s:'invalid',m:'Gib zuerst eine Zahl ein.'};
+  if(!/^\d+$/.test(t)) return {s:'invalid',m:'Gib eine ganze Zahl ein.'};
+  const v=+t; if(v===c.ans) return {s:'ok'};
+  for(const [w,h] of c.wrongs) if(v===w) return {s:'bad',m:h,specific:true};
+  return {s:'bad',m:null};
+}
+function solHtml(c){
+  if(c.k==='num') return decFmt(c.ans)+(c.suf?' '+c.suf:'');
+  if(c.k==='fill') return String(c.ans);
+  if(c.k==='cmp') return `${fH(c.a)} ${c.ans} ${fH(c.b)}`;
+  if(c.k==='pick') return fH(c.ans);
+  const a=c.ans;
+  if(c.req==='mixed'){ const r=red(a); return mx(Math.floor(r[0]/r[1]),r[0]%r[1],r[1]); }
+  if(c.req==='den'||c.req==='exact'||c.req==='improper') return fr(a[0],a[1]);
+  return niceH(a);
+}
+</script>
+
+<script>
+/* ---------- Bilder ---------- */
+function pieSvg(k,n,opt={}){
+  const s=opt.size||110, r=s/2-4, cx=s/2, cy=s/2; let out='';
+  for(let i=0;i<n;i++){
+    const on=opt.on?opt.on.has(i):i<k;
+    const cls=`pc${on?' on':''}`;
+    if(n===1){ out+=`<circle class="${cls}" data-i="0" cx="${cx}" cy="${cy}" r="${r}"/>`; continue; }
+    const a0=-Math.PI/2+2*Math.PI*i/n, a1=-Math.PI/2+2*Math.PI*(i+1)/n;
+    const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    out+=`<path class="${cls}" data-i="${i}" d="M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 ${n<=2&&false?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z"/>`;
+  }
+  return `<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" role="img" aria-label="Kreis in ${n} Teilen, ${k} gefärbt">${out}</svg>`;
+}
+function barSvg(k,n,opt={}){
+  const W=opt.w||240, H=opt.h||44, cw=W/n; let out='';
+  for(let i=0;i<n;i++){ const on=opt.on?opt.on.has(i):i<k; out+=`<rect class="pc${on?' '+(opt.cls||'on'):''}" data-i="${i}" x="${(2+i*cw).toFixed(2)}" y="2" width="${cw.toFixed(2)}" height="${H}"/>`; }
+  return `<svg viewBox="0 0 ${W+4} ${H+4}" width="${W+4}" style="max-width:100%" role="img" aria-label="Streifen in ${n} Teilen, ${k} gefärbt">${out}</svg>`;
+}
+
+/* ---------- Speicher, Hilfen ---------- */
+const KEY='brueche-lernseite-v1';
+let store={}; try{ store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ store={}; }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){} }
+const el=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
+const PARTS={}, pageOf={};
+document.querySelectorAll('[data-f]').forEach(s=>{ s.outerHTML=fstr(s.dataset.f); });
+
+/* ---------- Karten ---------- */
+function buildSet(key){
+  const host=document.getElementById('set-'+key); if(!host) return;
+  SETS[key].forEach(g=>{
+    const sec=el('div','set'); const h=el('div','set-h');
+    h.append(el('span','no',g.no), el('h3','',rm(g.title.replace(/</g,'&lt;').replace(/>/g,'&gt;'))));
+    sec.append(h);
+    if(g.plain) sec.append(el('p','plain','<b>Das heißt:</b> '+g.plain));
+    if(g.intro) sec.append(el('p','set-intro',rm(g.intro)));
+    const wide=g.cards.some(c=>c.k==='mc'&&c.prompt.length>70 || c.k==='num'&&c.prompt.length>70);
+    const grid=el('div','grid'+(wide?' wide':''));
+    g.cards.forEach((c,i)=>{ prepare(c,key+'-'+g.no,i); grid.append(card(c,key)); });
+    sec.append(grid); host.append(sec);
+  });
+}
+function card(c,page){
+  const box=el('div','task'); pageOf[c.id]=page; PARTS[c.id]={c,box};
+  const q=el('div','q'); if(c.lbl) q.append(el('span','lbl',c.lbl));
+  if(c.prompt && c.k!=='num') q.append(el('span','prompt',rm(c.prompt)));
+  if(c.k==='num' && c.prompt && c.prompt.length>40) q.append(el('span','prompt',rm(c.prompt)));
+  box.append(q);
+  const fb=el('div','fb'); fb.setAttribute('aria-live','polite');
+  c._tries=0;
+
+  if(c.k==='mc'){
+    const opts=el('div','opts');
+    c.opts.forEach(([t,h],i)=>{ const b=el('button','opt',rm(t)); b.type='button';
+      b.addEventListener('click',()=>{ opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+        if(i===c.ans){ b.classList.add('ok'); fb.innerHTML=`<div class="msg ok">✓ ${rm(c.okMsg||'Richtig!')}</div>`; win(c); }
+        else { b.classList.add('bad'); fb.innerHTML=`<div class="msg bad">Nicht ganz.</div><div class="tip">${rm(h)}</div>`; wrapWords(fb); } });
+      opts.append(b); });
+    if(store[c.id]==='ok') opts.children[c.ans].classList.add('ok');
+    box.append(opts,fb); refresh(c); return box;
+  }
+  if(c.k==='cmp'){
+    const row=el('div','cmp'); const slot=el('span','slot','?');
+    row.append(el('span','',fH(c.a)),slot,el('span','',fH(c.b)));
+    const opts=el('div','opts');
+    ['<','=','>'].forEach(sym=>{ const b=el('button','opt',sym==='<'?'&lt;':sym==='>'?'&gt;':'='); b.type='button'; b.setAttribute('aria-label',sym==='<'?'kleiner als':sym==='>'?'größer als':'gleich');
+      b.addEventListener('click',()=>{ opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad')); slot.textContent=sym;
+        if(sym===c.ans){ b.classList.add('ok'); fb.innerHTML='<div class="msg ok">✓ Richtig!</div>'; win(c); }
+        else { b.classList.add('bad'); c._tries++;
+          let m='Das stimmt noch nicht.';
+          if(c.a[0]===c.b[0] && c.a[1]!==c.b[1]) m='Vorsicht! Ein größerer Nenner heißt <b>kleinere</b> Stücke.';
+          fb.innerHTML=`<div class="msg bad">${m}</div><div class="tip">${rm(c.hints[Math.min(c._tries-1,c.hints.length-1)])}</div>`; wrapWords(fb); } });
+      opts.append(b); });
+    if(store[c.id]==='ok'){ slot.textContent=c.ans; }
+    box.append(row,opts,fb); refresh(c); return box;
+  }
+  if(c.k==='color'){
+    const wrap=el('div','click');
+    const on=new Set();
+    const draw=()=>{ wrap.innerHTML=c.shape==='pie'?pieSvg(0,c.m,{on,size:130}):barSvg(0,c.m,{on,w:260,h:50}); };
+    q.append(el('span','prompt','Färbe '+fr(c.t[0],c.t[1])+'.'));
+    if(store[c.id]==='ok') for(let i=0;i<c.need;i++) on.add(i);
+    draw();
+    wrap.addEventListener('click',e=>{ const p=e.target.closest('.pc'); if(!p) return; const i=+p.dataset.i; on.has(i)?on.delete(i):on.add(i); draw(); });
+    const b=el('button','btn','Prüfen'); b.type='button';
+    b.addEventListener('click',()=>{
+      const k=on.size;
+      if(k===c.need){ fb.innerHTML=`<div class="msg ok">✓ Richtig! ${k} von ${c.m} Teilen sind ${fr(c.t[0],c.t[1])}.</div>`; win(c); return; }
+      c._tries++;
+      let hint = c.m===c.t[1] ? `Das Ganze hat ${c.m} Teile. Färbe so viele, wie der Zähler sagt: ${c.t[0]}.`
+        : `Hier gibt es ${c.m} Teile, nicht ${c.t[1]}. Rechne: ${c.m} : ${c.t[1]} = ${c.m/c.t[1]}. Das ist ${fr(1,c.t[1])}. Für ${fr(c.t[0],c.t[1])} brauchst du ${c.t[0]} · ${c.m/c.t[1]} Teile.`;
+      fb.innerHTML=`<div class="msg bad">Du hast ${k} von ${c.m} Teilen gefärbt. Das ist ${fr(k,c.m)}, gesucht ist ${fr(c.t[0],c.t[1])}.</div><div class="tip">${hint}</div>`; wrapWords(fb);
+    });
+    const row=el('div','row'); row.append(b);
+    box.append(wrap,row,fb); refresh(c); return box;
+  }
+  if(c.k==='pick'){ box.append(el('div','pics',c.shape==='pie'?pieSvg(c.p[0],c.p[1]):barSvg(c.p[0],c.p[1]))); }
+
+  const row=el('div','row');
+  if(c.k==='num'){
+    if(!(c.prompt && c.prompt.length>40)) row.append(el('span','pre',rm(c.prompt)+(c.pre===''?'':' =')));
+    const inp=el('input','ans'); inp.type='text'; inp.inputMode='decimal'; inp.id='in-'+c.id; inp.autocomplete='off'; inp.setAttribute('aria-label','Antwort '+(c.lbl||''));
+    row.append(inp); if(c.suf) row.append(el('span','suf',c.suf));
+    const b=el('button','btn','Prüfen'); b.type='button'; row.append(b);
+    const go=()=>finish(c,checkNum(c,inp.value),[inp],fb);
+    b.addEventListener('click',go); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();go();} });
+    if(store[c.id]==='ok'){ inp.value=decFmt(c.ans); }
+    box.append(row,fb); restore(c,[inp],fb); return box;
+  }
+  if(c.k==='fill'){
+    const fin=el('span','fin'); const st=el('span','stack');
+    const inp=el('input','ans'); inp.type='text'; inp.inputMode='numeric'; inp.id='in-'+c.id; inp.autocomplete='off';
+    inp.setAttribute('aria-label',c.target==='n'?'fehlender Zähler':'fehlender Nenner');
+    const fixed=el('span','fixed',String(c.val));
+    if(c.target==='n'){ st.append(inp,el('span','ln'),fixed); } else { st.append(fixed,el('span','ln'),inp); }
+    fin.append(st);
+    row.append(el('span','pre',fH(c.a)+' ='),fin);
+    const b=el('button','btn','Prüfen'); b.type='button'; row.append(b);
+    const go=()=>finish(c,checkFill(c,inp.value),[inp],fb,fin);
+    b.addEventListener('click',go); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();go();} });
+    if(store[c.id]==='ok') inp.value=c.ans;
+    box.append(row,fb); restore(c,[inp],fb,fin); return box;
+  }
+  // Bruch-Eingabe
+  if(c.pre) row.append(el('span','pre',rm(c.pre)));
+  const fin=el('span','fin'); const ins=[];
+  let wIn=null;
+  if(c.mixed){ const wc=el('span','stack'); wIn=el('input','ans whole'); wIn.type='text'; wIn.inputMode='numeric'; wIn.id='in-'+c.id+'-w'; wIn.setAttribute('aria-label','Ganze'); wc.append(wIn,el('span','wlab','Ganze')); fin.append(wc); ins.push(wIn); }
+  const st=el('span','stack');
+  const nIn=el('input','ans'); nIn.type='text'; nIn.inputMode='numeric'; nIn.id='in-'+c.id+'-n'; nIn.setAttribute('aria-label','Zähler');
+  const dIn=el('input','ans'); dIn.type='text'; dIn.inputMode='numeric'; dIn.id='in-'+c.id+'-d'; dIn.setAttribute('aria-label','Nenner');
+  st.append(nIn,el('span','ln'),dIn); fin.append(st); ins.push(nIn,dIn);
+  ins.forEach(i=>i.autocomplete='off');
+  row.append(fin);
+  const b=el('button','btn','Prüfen'); b.type='button'; row.append(b);
+  const go=()=>finish(c,checkFrac(c,readInputs(wIn,nIn,dIn)),ins,fb,fin);
+  b.addEventListener('click',go);
+  ins.forEach(i=>i.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();go();} }));
+  nIn.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ dIn.focus(); } });
+  dIn.addEventListener('keydown',e=>{ if(e.key==='ArrowUp'){ nIn.focus(); } });
+  if(store[c.id]==='ok'){ const a=c.req==='mixed'?red(c.ans):c.req==='reduced'||c.req==='any'?red(c.ans):c.ans;
+    if(c.req==='mixed'){ wIn.value=Math.floor(a[0]/a[1]); nIn.value=a[0]%a[1]; dIn.value=a[1]; } else { nIn.value=a[0]; dIn.value=a[1]; } }
+  box.append(row,fb); restore(c,ins,fb,fin); return box;
+}
+function readInputs(wIn,nIn,dIn){
+  const ws=wIn?wIn.value.trim():'', ns=nIn.value.trim(), ds=dIn.value.trim();
+  const isInt=s=>/^\d+$/.test(s);
+  if(!ws&&!ns&&!ds) return {err:'Gib zuerst eine Antwort ein.'};
+  if(ws&&!isInt(ws) || ns&&!isInt(ns) || ds&&!isInt(ds)) return {err:'Gib nur ganze Zahlen ein, ohne Komma.'};
+  if(!ns&&!ds) return {w:+ws,hasW:true,n:0,d:1,hasF:false};
+  if(!ns||!ds) return {err:'Fülle Zähler <b>und</b> Nenner aus.'};
+  if(+ds===0) return {err:'Der Nenner darf nicht 0 sein.'};
+  return {w:ws?+ws:0,hasW:!!ws,n:+ns,d:+ds,hasF:true};
+}
+function restore(c,ins,fb,fin){
+  if(store[c.id]==='ok'){ (fin?[fin]:ins).forEach(i=>i.classList.add('ok')); fb.innerHTML='<div class="msg ok">Schon gelöst ✓</div>'; }
+  else if(store[c.id]==='seen') fb.innerHTML=`<div class="sol">Lösung angesehen: <b>${solHtml(c)}</b>. Versuch es noch einmal selbst.</div>`;
+  refresh(c);
+}
+function finish(c,r,ins,fb,fin){
+  const tgt=fin?[fin]:ins;
+  tgt.forEach(i=>i.classList.remove('ok','bad','almost'));
+  if(r.s==='invalid'){ fb.innerHTML=`<div class="msg almost">${r.m}</div>`; return; }
+  if(r.s==='ok'){ tgt.forEach(i=>i.classList.add('ok')); fb.innerHTML='<div class="msg ok">✓ Richtig!</div>'; win(c); return; }
+  c._tries++;
+  if(r.s==='almost'){ tgt.forEach(i=>i.classList.add('almost')); fb.innerHTML=`<div class="msg almost">${rm(r.m)}</div>`; wrapWords(fb); return; }
+  tgt.forEach(i=>i.classList.add('bad'));
+  let html=`<div class="msg bad">${r.m?rm(r.m):'Das stimmt noch nicht.'}</div>`;
+  if(!r.specific || c._tries>1){ const h=(c.hints||[])[Math.min(c._tries-1,(c.hints||[]).length-1)]; if(h) html+=`<div class="tip">${rm(h)}</div>`; }
+  if(c._tries>=2) html+='<div class="sol"><button class="link" type="button">Lösung zeigen</button></div>';
+  fb.innerHTML=html; wrapWords(fb);
+  const sb=fb.querySelector('.sol .link');
+  if(sb) sb.addEventListener('click',()=>{ fb.querySelector('.sol').innerHTML=`Lösung: <b>${solHtml(c)}</b>. Schreibe sie ab und überlege, wie man darauf kommt.`; if(store[c.id]!=='ok'){ store[c.id]='seen'; save(); } });
+}
+function win(c){ store[c.id]='ok'; save(); refresh(c); progress(); }
+function refresh(c){ PARTS[c.id].box.classList.toggle('ok',store[c.id]==='ok'); }
+function progress(){
+  const ids=Object.keys(PARTS);
+  document.querySelectorAll('.tab').forEach(t=>{ const mine=ids.filter(id=>pageOf[id]===t.dataset.tab); const ok=mine.filter(id=>store[id]==='ok').length;
+    t.querySelector('.n').textContent=mine.length?`${ok}/${mine.length}`:''; t.classList.toggle('done',mine.length>0&&ok===mine.length); });
+  const all=ids.filter(id=>store[id]==='ok').length;
+  document.getElementById('allbar').style.width=(ids.length?100*all/ids.length:0)+'%';
+  document.getElementById('alltxt').textContent=`${all} von ${ids.length} Aufgaben gelöst`;
+}
+
+/* ---------- Wörter-Hilfe ---------- */
+const WORDS={
+ bruch:['Bruch','Ein Teil von einem Ganzen, geschrieben mit Zähler, Bruchstrich und Nenner.','{3/4} heißt: 3 von 4 gleichen Teilen.'],
+ bruchstrich:['Bruchstrich','Der Strich zwischen Zähler und Nenner. Er bedeutet auch „geteilt durch“.','{3/4} = 3 : 4'],
+ zähler:['Zähler','Die Zahl oben. Sie zählt, wie viele Teile du nimmst.','Bei {3/4} ist 3 der Zähler.'],
+ nenner:['Nenner','Die Zahl unten. Sie nennt, in wie viele gleiche Teile das Ganze geteilt ist.','Bei {3/4} ist 4 der Nenner.'],
+ hauptnenner:['Hauptnenner','Der kleinste gemeinsame Nenner von zwei Brüchen.','{1/2} und {1/3}: Hauptnenner 6'],
+ gleichnamig:['gleichnamig','Brüche mit gleichem Nenner.','{1/5} und {3/5}'],
+ ungleichnamig:['ungleichnamig','Brüche mit verschiedenen Nennern.','{1/2} und {1/3}'],
+ erweitern:['erweitern','Zähler und Nenner mit derselben Zahl mal nehmen. Der Wert bleibt gleich.','{1/2} = {2/4}'],
+ kürzen:['kürzen','Zähler und Nenner durch dieselbe Zahl teilen. Der Wert bleibt gleich.','{4/8} = {1/2}'],
+ kehrwert:['Kehrwert','Der umgedrehte Bruch.','Kehrwert von {2/3} ist {3/2}.'],
+ unecht:['unechter Bruch','Der Zähler ist größer als der Nenner. Der Bruch ist mehr als 1.','{7/4}'],
+ echt:['echter Bruch','Der Zähler ist kleiner als der Nenner. Der Bruch ist kleiner als 1.','{3/4}'],
+ gemischt:['gemischte Zahl','Ganze und ein Bruch zusammen.','{1 3/4} = 1 + {3/4}'],
+ dezimal:['Dezimalzahl','Eine Zahl mit Komma.','0,5 &nbsp; 0,25'],
+ prozent:['Prozent','von Hundert, also Hundertstel. Zeichen: %','25 % = {25/100}'],
+ teiler:['Teiler','Eine Zahl, durch die man ohne Rest teilen kann.','Teiler von 12: 1, 2, 3, 4, 6, 12'],
+ vielfach:['Vielfaches','Das Ergebnis aus einer Einmaleins-Reihe.','Vielfache von 4: 4, 8, 12, 16 …'],
+ gleichwertig:['gleichwertig','gleich viel wert','{1/2} und {2/4} sind gleichwertig.'],
+ anteil:['Anteil','Ein Teil von einer Menge.','{1/4} von 20 € sind 5 €.'],
+ ganze:['das Ganze','Alle Teile zusammen. Das ist 1.','{4/4} = 1'],
+ summe:['Summe','Das Ergebnis von plus.','{1/5} + {2/5} = {3/5}'],
+ differenz:['Differenz','Das Ergebnis von minus.','{4/5} − {1/5} = {3/5}'],
+ produkt:['Produkt','Das Ergebnis von mal.','{1/2} · {1/3} = {1/6}'],
+ quotient:['Quotient','Das Ergebnis von geteilt.','{1/2} : 2 = {1/4}'],
+ hälfte:['die Hälfte','{1/2}, also geteilt durch 2','Die Hälfte von 10 ist 5.'],
+ drittel:['Drittel','Das Ganze in 3 gleiche Teile geteilt.','ein Drittel = {1/3}'],
+ viertel:['Viertel','Das Ganze in 4 gleiche Teile geteilt.','ein Viertel = {1/4}'],
+ zehntel:['Zehntel','Das Ganze in 10 gleiche Teile geteilt.','{3/10} = 0,3'],
+ hundertstel:['Hundertstel','Das Ganze in 100 gleiche Teile geteilt.','{7/100} = 0,07'],
+};
+const WRE=/(Bruchstrich(?:e)?|Brüchen?|Bruch(?:es|s)?|Zählern?|Hauptnenner[ns]?|Nennern?|ungleichnamig\w*|gleichnamig\w*|[Ee]rweiter\w*|[Kk]ürz\w*|Kehrwert\w*|unechte[nrs]?|echte[nrs]?|gemischte[nr]?|Dezimalzahl(?:en)?|Prozent|Teiler[ns]?|Vielfache[ns]?|gleichwertig\w*|Anteile?n?|Ganze[ns]?|Summe[n]?|Differenz(?:en)?|Produkt(?:e)?|Quotient(?:en)?|Hälfte|Drittel|Viertel|Zehntel|Hundertstel)(?![\wäöüß])/g;
+function wordKey(w){ const l=w.toLowerCase();
+  const order=[['bruchstrich','bruchstrich'],['brüch','bruch'],['bruch','bruch'],['zähler','zähler'],['hauptnenner','hauptnenner'],['nenner','nenner'],['ungleichnamig','ungleichnamig'],['gleichnamig','gleichnamig'],['erweiter','erweitern'],['kürz','kürzen'],['kehrwert','kehrwert'],['unecht','unecht'],['echt','echt'],['gemischt','gemischt'],['dezimal','dezimal'],['prozent','prozent'],['teiler','teiler'],['vielfach','vielfach'],['gleichwertig','gleichwertig'],['anteil','anteil'],['ganze','ganze'],['summe','summe'],['differenz','differenz'],['produkt','produkt'],['quotient','quotient'],['hälfte','hälfte'],['drittel','drittel'],['viertel','viertel'],['zehntel','zehntel'],['hundertstel','hundertstel']];
+  for(const [p,k] of order) if(l.startsWith(p)) return k; return null; }
+const SKIP=new Set(['INPUT','BUTTON','SELECT','OPTION','SCRIPT','STYLE','H1','H2','SVG','TEXT','TH','B']);
+const BLOCK='p, td, h3, .note, .plain, .tip, .msg, .q, .set-intro, .merke, .panel, section, .fb';
+function wrapWords(root){
+  const seen=new WeakMap();
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
+    for(let p=n.parentNode;p&&p!==root.parentNode;p=p.parentNode){ if(p.nodeType===1&&(SKIP.has(p.nodeName.toUpperCase())||p.classList.contains('w')||p.classList.contains('tabs')||p.classList.contains('fr'))) return NodeFilter.FILTER_REJECT; }
+    WRE.lastIndex=0; return WRE.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT; }});
+  const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n=>{
+    const blk=n.parentNode.closest?n.parentNode.closest(BLOCK)||root:root;
+    if(!seen.has(blk)) seen.set(blk,new Set()); const used=seen.get(blk);
+    const frag=document.createDocumentFragment(); let last=0; const txt=n.nodeValue; WRE.lastIndex=0; let m;
+    while((m=WRE.exec(txt))){ const pre=txt[m.index-1]; if(pre && /[\wäöüß]/i.test(pre)) continue; const key=wordKey(m[1]); if(!key||used.has(key)) continue; used.add(key);
+      frag.append(txt.slice(last,m.index)); const b=document.createElement('button'); b.type='button'; b.className='w'; b.dataset.w=key; b.textContent=m[1]; frag.append(b); last=m.index+m[1].length; }
+    frag.append(txt.slice(last)); n.parentNode.replaceChild(frag,n);
+  });
+}
+const wpop=document.createElement('div'); wpop.id='wpop'; wpop.hidden=true; wpop.setAttribute('role','tooltip'); document.body.append(wpop);
+let wOpen=null;
+document.addEventListener('click',e=>{
+  const b=e.target.closest && e.target.closest('.w');
+  if(!b){ if(!wpop.contains(e.target)){ wpop.hidden=true; wOpen=null; } return; }
+  if(wOpen===b){ wpop.hidden=true; wOpen=null; return; }
+  const [t,d,ex]=WORDS[b.dataset.w];
+  wpop.innerHTML=`<b>${t}</b>: ${d}<span class="ex">${rm(ex)}</span>`; wpop.hidden=false; wOpen=b;
+  const r=b.getBoundingClientRect(); const w=Math.min(300,document.documentElement.clientWidth-32);
+  let left=r.left+window.scrollX; left=Math.max(16,Math.min(left,document.documentElement.clientWidth-w-16));
+  wpop.style.left=left+'px'; wpop.style.top=(r.bottom+window.scrollY+8)+'px';
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ wpop.hidden=true; wOpen=null; }});
+
+/* ---------- Interaktive Bilder ---------- */
+// Pizza-Beispiel
+document.getElementById('pizza-demo').innerHTML=pieSvg(3,4,{size:140})+'<span class="big">'+fr(3,4)+'</span>';
+
+// Bruch-Werkstatt
+(function(){ let z=3,n=4; const up=()=>{
+  document.getElementById('bw-z').textContent=z; document.getElementById('bw-n').textContent=n;
+  document.getElementById('bw-pics').innerHTML=pieSvg(z,n,{size:130})+barSvg(z,n,{w:260,h:46});
+  document.getElementById('bw-txt').innerHTML=`${fr(z,n)} &nbsp;→&nbsp; Das Ganze hat <span class="hl">${n}</span> gleiche Teile. <span class="hl">${z}</span> davon sind gefärbt.`+(z===n?' Das ist ein Ganzes!':'');
+ };
+ document.getElementById('bw-zm').onclick=()=>{ if(z>0){z--;up();} };
+ document.getElementById('bw-zp').onclick=()=>{ if(z<n){z++;up();} };
+ document.getElementById('bw-nm').onclick=()=>{ if(n>1){n--; if(z>n) z=n; up();} };
+ document.getElementById('bw-np').onclick=()=>{ if(n<12){n++;up();} };
+ up(); })();
+
+// Anteil-Rechner
+(function(){
+  const T=document.getElementById('ar-total'), D=document.getElementById('ar-d'), Z=document.getElementById('ar-z'), svg=document.getElementById('ar-svg'), out=document.getElementById('ar-txt');
+  function fillD(){ const t=+T.value, cur=+D.value||4; D.innerHTML=''; [2,3,4,5,6,10,12].filter(d=>t%d===0).forEach(d=>D.append(new Option(String(d),String(d)))); D.value=[...D.options].some(o=>+o.value===cur)?cur:D.options[0].value; }
+  function fillZ(){ const d=+D.value, cur=+Z.value||1; Z.innerHTML=''; for(let z=1;z<=d;z++) Z.append(new Option(String(z),String(z))); Z.value=Math.min(cur,d); }
+  function draw(){
+    const t=+T.value,d=+D.value,z=+Z.value,per=t/d, r=8, gap=4, gx=10;
+    const rowsW=per*(2*r+gap); let out2=''; const W=Math.max(rowsW+90,300), H=d*(2*r+8)+10;
+    for(let g=0;g<d;g++){ const y=8+g*(2*r+8)+r;
+      out2+=`<text x="4" y="${y+5}" font-size="13" fill="var(--muted)">${g+1}.</text>`;
+      for(let i=0;i<per;i++){ out2+=`<circle cx="${30+i*(2*r+gap)+r}" cy="${y}" r="${r}" class="pc${g<z?' on':''}"/>`; } }
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.style.maxWidth=W+'px'; svg.innerHTML=out2;
+    out.innerHTML=`${fr(z,d)} von ${t}: &nbsp; ${t} : ${d} = ${per} &nbsp;→&nbsp; ${per} · ${z} = <span class="hl">${per*z}</span>`;
+  }
+  T.onchange=()=>{fillD();fillZ();draw();}; D.onchange=()=>{fillZ();draw();}; Z.onchange=draw;
+  D.value='4'; fillD(); Z.value='3'; fillZ(); Z.value='3'; draw();
+})();
+
+// Bruch-Lupe
+(function(){
+  const S=document.getElementById('bl-f'), K=document.getElementById('bl-k');
+  function up(){ const [a,b]=S.value.split('/').map(Number), k=+K.value; document.getElementById('bl-kv').textContent=k;
+    document.getElementById('bl-pics').innerHTML='<div class="pics" style="flex-direction:column;align-items:flex-start;gap:8px">'+barSvg(a,b,{w:300,h:40})+barSvg(a*k,b*k,{w:300,h:40})+'</div>';
+    document.getElementById('bl-txt').innerHTML=k===1?`${fr(a,b)} &nbsp; (noch nicht geteilt)`:`${fr(a,b)} = ${fr(a+' · '+k,b+' · '+k)} = ${fr(a*k,b*k)} &nbsp; <small style="font-weight:400">Erweitert mit ${k}</small>`; }
+  S.onchange=up; K.oninput=up; up();
+})();
+
+// Vergleichs-Streifen
+(function(){
+  const st={a:[2,3],b:[3,4]}; const ctl=document.getElementById('vs-ctl');
+  ['a','b'].forEach((key,i)=>{ const wrap=el('span','',`${i?'Unten':'Oben'}: `);
+    [['Zähler',0],['Nenner',1]].forEach(([lab,j])=>{ const s=el('span','step'); const m=el('button','','−'), p=el('button','','+'), v=el('b'); m.type=p.type='button';
+      m.setAttribute('aria-label',lab+' kleiner'); p.setAttribute('aria-label',lab+' größer');
+      m.onclick=()=>{ if(st[key][j]>1){ st[key][j]--; if(st[key][0]>st[key][1]) st[key][0]=st[key][1]; up(); } };
+      p.onclick=()=>{ if(st[key][j]<12){ st[key][j]++; if(st[key][0]>st[key][1]) st[key][1]=st[key][0]; up(); } };
+      s.append(m,v,p); s.dataset.k=key; s.dataset.j=j; wrap.append(el('span','',' '+lab+' '),s); });
+    ctl.append(wrap); });
+  function up(){
+    ctl.querySelectorAll('.step').forEach(s=>s.querySelector('b').textContent=st[s.dataset.k][+s.dataset.j]);
+    const W=360, bar=(k,n,y,cls)=>{ let o=''; const cw=W/n; for(let i=0;i<n;i++) o+=`<rect class="pc${i<k?' '+cls:''}" x="${50+i*cw}" y="${y}" width="${cw}" height="38"/>`; return o; };
+    const [a,b]=[st.a,st.b];
+    document.getElementById('vs-svg').innerHTML=bar(a[0],a[1],10,'on')+bar(b[0],b[1],70,'on2')+
+      `<foreignObject x="0" y="10" width="48" height="40"><div xmlns="http://www.w3.org/1999/xhtml" style="color:var(--ink);font:15px var(--f-body)">${fr(a[0],a[1])}</div></foreignObject>`+
+      `<foreignObject x="0" y="70" width="48" height="40"><div xmlns="http://www.w3.org/1999/xhtml" style="color:var(--ink);font:15px var(--f-body)">${fr(b[0],b[1])}</div></foreignObject>`;
+    const v=a[0]*b[1]-b[0]*a[1]; const s=v<0?'&lt;':v>0?'&gt;':'=';
+    document.getElementById('vs-txt').innerHTML=`${fr(a[0],a[1])} ${s} ${fr(b[0],b[1])}`;
+  }
+  up();
+})();
+
+// Plus-Bilder
+document.getElementById('pm-demo1').innerHTML=barSvg(1,5,{w:200,h:36})+'<span class="big">+</span>'+barSvg(2,5,{w:200,h:36,cls:'on2'})+'<span class="big">=</span>'+barSvg(3,5,{w:200,h:36});
+document.getElementById('pm-demo2').innerHTML=barSvg(3,6,{w:180,h:36})+'<span class="big">+</span>'+barSvg(2,6,{w:180,h:36,cls:'on2'})+'<span class="big">=</span>'+barSvg(5,6,{w:180,h:36});
+document.getElementById('pm-demo3').innerHTML=pieSvg(4,4,{size:100})+pieSvg(3,4,{size:100})+`<span class="big">= ${fr(7,4)} = ${mx(1,3,4)}</span>`;
+
+// Hunderter-Feld
+(function(){ const S=document.getElementById('hf-f');
+  function up(){ const [a,b]=S.value.split('/').map(Number); const k=Math.round(100*a/b); let o='';
+    for(let i=0;i<100;i++){ const x=1+(i%10)*22, y=1+Math.floor(i/10)*22; o+=`<rect class="pc${i<k?' on':''}" x="${x}" y="${y}" width="22" height="22" style="stroke-width:1"/>`; }
+    document.getElementById('hf-svg').innerHTML=o;
+    document.getElementById('hf-txt').innerHTML=`<div>${fr(a,b)} = ${fr(k,100)}</div><div>= ${decFmt(k/100)}</div><div>= ${k} %</div>`; }
+  S.onchange=up; up(); })();
+
+/* ---------- Reiter ---------- */
+const PAGES=['bruch','anteil','kuerzen','vergleich','plusminus','malgeteilt','dezimal'];
+function show(pg,scroll){
+  if(!PAGES.includes(pg)) pg='bruch';
+  document.querySelectorAll('section.page').forEach(s=>s.hidden=(s.dataset.page!==pg));
+  document.querySelectorAll('.tab').forEach(t=>{ const on=t.dataset.tab===pg; t.setAttribute('aria-selected',on); if(on&&t.scrollIntoView) t.scrollIntoView({block:'nearest',inline:'nearest'}); });
+  try{ history.replaceState(null,'','#'+pg); }catch(e){}
+  try{ localStorage.setItem(KEY+'-tab',pg); }catch(e){}
+  wpop.hidden=true;
+  if(scroll) window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab,true)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go,true)));
+
+document.getElementById('reset').onclick=()=>{ document.getElementById('reset-confirm').hidden=false; };
+document.getElementById('reset-no').onclick=()=>{ document.getElementById('reset-confirm').hidden=true; };
+document.getElementById('reset-yes').onclick=()=>{
+  store={}; save(); for(const k in PARTS) delete PARTS[k];
+  document.querySelectorAll('[id^="set-"]').forEach(h=>h.innerHTML='');
+  Object.keys(SETS).forEach(buildSet); document.querySelectorAll('[id^="set-"]').forEach(wrapWords); progress();
+  document.getElementById('reset-confirm').hidden=true;
+};
+
+Object.keys(SETS).forEach(buildSet);
+document.querySelectorAll('section.page').forEach(wrapWords);
+progress();
+let first=(location.hash||'').slice(1);
+if(!PAGES.includes(first)){ try{ first=localStorage.getItem(KEY+'-tab')||'bruch'; }catch(e){ first='bruch'; } }
+show(first,false);
+</script>
+
+</body>
+</html>
