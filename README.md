@@ -8,7 +8,11 @@ Interaktive Lernseite zu Brüchen – vom Bruchbegriff bis zu Rechenarten und Pr
 - Brüche addieren, subtrahieren, multiplizieren und dividieren
 - Brüche mit Dezimalzahlen und Prozenten verbinden
 
-## Schnellstart
+## Online öffnen
+
+[Brüche von Anfang an](https://jubitwo.github.io/Brueche/)
+
+## Lokal starten
 
 Repository herunterladen oder klonen und [index.html](./index.html) in einem aktuellen Browser öffnen.
 
