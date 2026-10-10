@@ -2,15 +2,17 @@
 
 Interaktive Lernseite zu Brüchen – vom Bruchbegriff bis zu Rechenarten und Prozenten.
 
+## HTML-Dateien
+
+| Datei | Zweck | Online-Version |
+|---|---|---|
+| [index.html](./index.html) | Interaktive Lernseite mit sieben Lernstationen | [Öffnen](https://jubitwo.github.io/Brueche/) |
+
 ## Lerninhalte
 
 - Brüche verstehen, Anteile berechnen, erweitern, kürzen und vergleichen
 - Brüche addieren, subtrahieren, multiplizieren und dividieren
 - Brüche mit Dezimalzahlen und Prozenten verbinden
-
-## Online öffnen
-
-[Brüche von Anfang an](https://jubitwo.github.io/Brueche/)
 
 ## Lokal starten
 
